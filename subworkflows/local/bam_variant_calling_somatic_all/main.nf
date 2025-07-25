@@ -12,6 +12,7 @@ include { BAM_VARIANT_CALLING_SOMATIC_MANTA             } from '../bam_variant_c
 include { BAM_VARIANT_CALLING_SOMATIC_MUTECT2           } from '../bam_variant_calling_somatic_mutect2/main'
 include { BAM_VARIANT_CALLING_SOMATIC_STRELKA           } from '../bam_variant_calling_somatic_strelka/main'
 include { BAM_VARIANT_CALLING_SOMATIC_TIDDIT            } from '../bam_variant_calling_somatic_tiddit/main'
+include { BAM_VARIANT_CALLING_SOMATIC_VARSCAN           } from '../bam_variant_calling_somatic_varscan/main'
 include { BAM_VARIANT_CALLING_INDEXCOV                  } from '../bam_variant_calling_indexcov/main'
 include { MSISENSORPRO_MSISOMATIC                       } from '../../../modules/nf-core/msisensorpro/msisomatic/main'
 
@@ -54,6 +55,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     out_msisensorpro    = Channel.empty()
     vcf_mutect2         = Channel.empty()
     vcf_tiddit          = Channel.empty()
+    vcf_varscan         = Channel.empty()
     out_indexcov        = Channel.empty()
 
     if (tools.split(',').contains('ascat')) {
@@ -239,12 +241,25 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         versions = versions.mix(BAM_VARIANT_CALLING_SOMATIC_TIDDIT.out.versions)
     }
 
+    // VARSCAN
+    if (tools.split(',').contains('varscan')) {
+        BAM_VARIANT_CALLING_SOMATIC_VARSCAN(
+            cram,
+            fasta,
+            fasta_fai,
+            intervals_bed_combined
+        )
+        vcf_varscan = BAM_VARIANT_CALLING_SOMATIC_VARSCAN.out.vcf
+        versions = versions.mix(BAM_VARIANT_CALLING_SOMATIC_VARSCAN.out.versions)
+    }
+
     vcf_all = Channel.empty().mix(
         vcf_freebayes,
         vcf_manta,
         vcf_mutect2,
         vcf_strelka,
-        vcf_tiddit
+        vcf_tiddit,
+        vcf_varscan
     )
 
     emit:
@@ -256,6 +271,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     vcf_mutect2
     vcf_strelka
     vcf_tiddit
+    vcf_varscan
 
     versions
 }
