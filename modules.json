@@ -10,6 +10,11 @@
                         "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
                         "installed_by": ["modules"]
                     },
+                    "bamreadcount": {
+                        "branch": "master",
+                        "git_sha": "c5c5a32c091113b9eccf11390f0091439ba85baa",
+                        "installed_by": ["modules"]
+                    },
                     "bcftools/annotate": {
                         "branch": "master",
                         "git_sha": "cb08035150685b11d890d90c9534d4f16869eaec",
@@ -503,6 +508,21 @@
                     "unzip": {
                         "branch": "master",
                         "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "installed_by": ["modules"]
+                    },
+                    "varscan/fpfilter": {
+                        "branch": "master",
+                        "git_sha": "ff79ec048f638b4988aa74eb0bf2b6c58241d524",
+                        "installed_by": ["modules"]
+                    },
+                    "varscan/processsomatic": {
+                        "branch": "master",
+                        "git_sha": "6f835e2153334430b0519fd5bb53d146b26cf1a4",
+                        "installed_by": ["modules"]
+                    },
+                    "varscan/somatic": {
+                        "branch": "master",
+                        "git_sha": "48fad1e9dba98a3ed209e8d20c29fa1e9076e23c",
                         "installed_by": ["modules"]
                     },
                     "vcftools": {
