@@ -26,6 +26,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_VARSCAN {
     // run samtools mpileup for normal and tumor samples
     ch_bam_for_mpileup_normal = cram
         .map{ meta, normal_cram, _normal_crai, _tumor_cram, _tumor_crai -> [ meta, normal_cram, intervals ] }
+    ch_bam_for_mpileup_normal.view()
     MPILEUP_NORMAL(ch_bam_for_mpileup_normal, fasta)
 
     ch_bam_for_mpileup_tumor = cram
