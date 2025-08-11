@@ -26,19 +26,20 @@ workflow BAM_VARIANT_CALLING_SOMATIC_VARSCAN {
     // run samtools mpileup for normal and tumor samples
     ch_bam_for_mpileup_normal = cram
         .combine(intervals)
-        .map{ cram_vals, interval ->
-            def (meta, normal_cram, _normal_crai, _tumor_cram, _tumor_crai) = cram_vals
+        .map{ meta, normal_cram, _normal_crai, _tumor_cram, _tumor_crai, interval ->
             [ meta, normal_cram, interval ]
         }
-    MPILEUP_NORMAL(ch_bam_for_mpileup_normal, fasta)
+
+    ch_fasta = fasta.map{ _meta, fa -> [ fa ] }
+
+    MPILEUP_NORMAL(ch_bam_for_mpileup_normal, ch_fasta)
 
     ch_bam_for_mpileup_tumor = cram
         .combine(intervals)
-        .map{ cram_vals, interval ->
-            def (meta, _normal_cram, _normal_crai, tumor_cram, _tumor_crai) = cram_vals
+        .map{ meta, _normal_cram, _normal_crai, tumor_cram, _tumor_crai, interval ->
             [ meta, tumor_cram, interval ]
         }
-    MPILEUP_TUMOR(ch_bam_for_mpileup_tumor, fasta)
+    MPILEUP_TUMOR(ch_bam_for_mpileup_tumor, ch_fasta)
 
     // run varscan somatic variant calling
     ch_mpileup_for_varscan_somatic = MPILEUP_NORMAL.out.mpileup
@@ -48,10 +49,9 @@ workflow BAM_VARIANT_CALLING_SOMATIC_VARSCAN {
     VARSCAN_PROCESS_SNV(VARSCAN_SOMATIC.out.vcf_snvs)
     VARSCAN_PROCESS_INDEL(VARSCAN_SOMATIC.out.vcf_indels)
 
-    ch_bam_for_bamreadcount = cram.map{ meta, _normal_cram, _normal_crai, tumor_cram, tumor_crai -> [ meta, tumor_cram, tumor_crai ] }
-    ch_fasta_for_bamreadcount = fasta.map{ _meta, fa -> [ fa ] }
-    ch_bed_for_bamreadcount = intervals.map{ interval -> [ interval ] }
-    BAMREADCOUNT(ch_bam_for_bamreadcount, ch_fasta_for_bamreadcount, ch_bed_for_bamreadcount)
+    ch_bam_for_bamreadcount = cram
+        .map{ meta, _normal_cram, _normal_crai, tumor_cram, tumor_crai -> [ meta, tumor_cram, tumor_crai ] }
+    BAMREADCOUNT(ch_bam_for_bamreadcount, ch_fasta, intervals)
 
     // filter variants
     ch_process_snv_to_filter = VARSCAN_PROCESS_SNV.out.somatic_hc_vcf
